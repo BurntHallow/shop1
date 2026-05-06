@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Отзывы о магазине</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links a {
+            margin: 0 15px;
+            text-decoration: none;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover {
+            background: orange;
+        }
+
+        .review {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .review-name {
+            font-weight: bold;
+            color: orange;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: gray;
+            margin-left: 10px;
+        }
+
+        .review-text {
+            margin-top: 10px;
+        }
+
+        .add-review {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .add-review input,
+        .add-review textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .add-review textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            background: orange;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: darkorange;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>⭐ Отзывы наших покупателей</h1>
+
+        <div class="nav-links">
+            <a href="index.html">🏠 Главная</a>
+            <a href="cart.html">🛒 Корзина</a>
+            <a href="info.html">ℹ️ Информация</a>
+            <a href="reviews.html">⭐ Отзывы</a>
+        </div>
+
+        <div id="reviewsContainer">
+            <!-- Сюда будут загружены отзывы -->
+        </div>
+
+        <div class="add-review">
+            <h3>📝 Оставить отзыв</h3>
+            <input type="text" id="reviewName" placeholder="Ваше имя" maxlength="30">
+            <textarea id="reviewText" placeholder="Ваш отзыв..."></textarea>
+            <button onclick="addReview()">✉️ Отправить отзыв</button>
+        </div>
+    </div>
+
+    <script>
+        // Загружаем отзывы из localStorage
+        let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+
+        // Пример начальных отзывов (если нет ни одного)
+        if (reviews.length === 0) {
+            reviews = [
+                { name: "Анна", text: "Отличный магазин! Товар пришёл быстро, качество супер.", date: "2025-03-20" },
+                { name: "Иван", text: "Хороший выбор, цены адекватные. Буду заказывать ещё.", date: "2025-03-18" }
+            ];
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+        }
+
+        function saveReviews() {
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+        }
+
+        function displayReviews() {
+            const container = document.getElementById('reviewsContainer');
+            if (reviews.length === 0) {
+                container.innerHTML = '<p>Пока нет отзывов. Будьте первым!</p>';
+                return;
+            }
+
+            let html = '';
+            for (let i = reviews.length - 1; i >= 0; i--) {
+                const r = reviews[i];
+                html += `
+                    <div class="review">
+                        <div>
+                            <span class="review-name">${escapeHtml(r.name)}</span>
+                            <span class="review-date">${r.date}</span>
+                        </div>
+                        <div class="review-text">${escapeHtml(r.text)}</div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function addReview() {
+            const name = document.getElementById('reviewName').value.trim();
+            const text = document.getElementById('reviewText').value.trim();
+
+            if (!name) {
+                alert('Введите имя');
+                return;
+            }
+            if (!text) {
+                alert('Введите текст отзыва');
+                return;
+            }
+            if (text.length < 5) {
+                alert('Отзыв должен быть хотя бы 5 символов');
+                return;
+            }
+
+            const today = new Date().toISOString().slice(0, 10);
+            reviews.push({
+                name: name,
+                text: text,
+                date: today
+            });
+            saveReviews();
+
+            // Очищаем поля
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewText').value = '';
+
+            displayReviews();
+            alert('Спасибо за отзыв!');
+        }
+
+        displayReviews();
+    </script>
+
+</body>
+
+</html>
